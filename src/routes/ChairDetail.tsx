@@ -29,9 +29,16 @@ export default function ChairDetail() {
   const [qty, setQty] = useState(1)
   const [justAdded, setJustAdded] = useState(false)
 
-  // Navigating between two product pages reuses this component, so the
-  // selection has to follow the slug or you inherit the last chair's colourway —
-  // and, now, the last chair's build, whose option ids mean nothing here.
+  // Belt-and-braces, and measured rather than assumed: a mount probe showed that
+  // in-app navigation between two product pages already remounts this route,
+  // because `App.tsx` keys the routes on `location.pathname` and the slug is part
+  // of it — so the `useState` initialisers re-run and this effect finds nothing
+  // to reset.
+  //
+  // It stays because that is a guarantee living in someone else's file. Drop the
+  // key in `App.tsx` and, without this, you silently inherit the previous chair's
+  // colourway and build, with nothing to catch it. The cost of keeping it is one
+  // oxlint `set-state-in-effect` warning.
   useEffect(() => {
     setColorwayId(chair?.colorways[0]?.id ?? "")
     setChoices(defaultChoices(chair))
