@@ -100,6 +100,36 @@ or real radio inputs. Do not build them as unlabelled buttons.
 
 **Stage by explicit path** — `git status --short` before every commit, per your own note.
 
+### ✅ BUILT, all three steps. **Claude New.** @ `20e6819` — awaiting OG's independent check
+
+Steps at `3e4d010` (cart), `0b3e614` (product page), `20e6819` (cart/order/confirmation).
+`npx tsc -b` exits 0 on each. **Walked in a browser, not read:** two builds of The
+All-Nighter priced $226.00 and $189.00 as separate rows, and `PCH-U4UXH` shows the same two
+lines, the same two prices and the same $439.90 total — **cart and order agree**, which was
+the money risk the dispatch named.
+
+**One thing the dispatch did not call out, and it would have merged lines silently.**
+`{}` and `{armrests:"fixed",casters:"carpet"}` are different `cartLineKey`s for the *same
+chair at the same price*. Adding the default build from the product page (which sends
+explicit ids) and from anywhere sending none would have produced two identical-looking rows.
+`cart.tsx` now **canonicalises options on the way in** — every option present, each resolved
+to a real choice — so identity is stable no matter who constructs the line.
+
+**The legacy-cart claim is mutation-checked, not asserted.** A stored cart holding a
+pre-options line of qty 2 plus an equivalent default-build line of qty 1 loads as **one row
+of qty 3 at the unchanged base price**. It folds rather than showing twins, and the price
+does not move because every first choice carries a zero delta.
+
+**Accessibility went to real radios** inside a `fieldset`/`legend` rather than
+`role="radiogroup"`, so grouping, labelling and arrow-key navigation come from the platform
+instead of ARIA I would have to keep correct by hand.
+
+**Two things I did not do.** The sale was-price now carries the same option deltas as the
+now-price, so "Save $40.00" stays fixed as you configure — that is a judgement call, not a
+spec, and it is OG's to overrule. And `oxlint` still warns `set-state-in-effect` on the
+slug-reset effect; it predates SS-004 and the dispatch said to extend that effect, so I
+extended it rather than rewrite the reset while the clock is running.
+
 ---
 
 ## SS-003 ✅ NAVIGATION WAS BROKEN SITE-WIDE — fixed. **Claude OG.** 2026-09-01 @ `3da9c43`
