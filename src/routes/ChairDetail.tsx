@@ -7,9 +7,16 @@ import ChairArt from "@/components/ChairArt"
 import ChairCard from "@/components/ChairCard"
 import { CHAIRS, chairBySlug } from "@/data/chairs"
 import { useCart } from "@/lib/cart"
-import { CATEGORY_LABEL } from "@/lib/types"
+import { unitPriceCents } from "@/lib/pricing"
+import { CATEGORY_LABEL, type Chair } from "@/lib/types"
 import { cn, formatPrice } from "@/lib/utils"
 import NotFound from "@/routes/NotFound"
+
+/** Every option resolved to its first choice — the build a chair ships as. */
+function defaultChoices(chair: Chair | undefined): Record<string, string> {
+  if (!chair?.options?.length) return {}
+  return Object.fromEntries(chair.options.map((opt) => [opt.id, opt.choices[0]!.id]))
+}
 
 export default function ChairDetail() {
   const { slug } = useParams()
@@ -17,13 +24,16 @@ export default function ChairDetail() {
   const { add } = useCart()
 
   const [colorwayId, setColorwayId] = useState(() => chair?.colorways[0]?.id ?? "")
+  const [choices, setChoices] = useState<Record<string, string>>(() => defaultChoices(chair))
   const [qty, setQty] = useState(1)
   const [justAdded, setJustAdded] = useState(false)
 
   // Navigating between two product pages reuses this component, so the
-  // selection has to follow the slug or you inherit the last chair's colourway.
+  // selection has to follow the slug or you inherit the last chair's colourway —
+  // and, now, the last chair's build, whose option ids mean nothing here.
   useEffect(() => {
     setColorwayId(chair?.colorways[0]?.id ?? "")
+    setChoices(defaultChoices(chair))
     setQty(1)
     setJustAdded(false)
   }, [chair])
@@ -38,6 +48,9 @@ export default function ChairDetail() {
 
   const colorway = chair.colorways.find((c) => c.id === colorwayId) ?? chair.colorways[0]
   const onSale = typeof chair.compareAtCents === "number"
+  // The one place this page turns a build into a price.
+  const unitCents = unitPriceCents(chair, choices)
+  const optionDeltaCents = unitCents - chair.priceCents
   const related = CHAIRS.filter(
     (c) => c.category === chair.category && c.slug !== chair.slug,
   ).slice(0, 3)
@@ -78,11 +91,14 @@ export default function ChairDetail() {
           </div>
 
           <div className="flex items-baseline gap-3">
-            <span className="text-2xl font-semibold">{formatPrice(chair.priceCents)}</span>
+            <span className="text-2xl font-semibold">{formatPrice(unitCents)}</span>
             {onSale && (
               <>
+                {/* The was-price carries the same option deltas as the now-price,
+                    so the saving stays the saving instead of drifting as you
+                    configure. */}
                 <span className="text-muted-foreground line-through">
-                  {formatPrice(chair.compareAtCents!)}
+                  {formatPrice(chair.compareAtCents! + optionDeltaCents)}
                 </span>
                 <span className="rounded-full bg-accent px-2 py-0.5 font-mono text-[10px] uppercase tracking-wider text-accent-foreground">
                   Save {formatPrice(chair.compareAtCents! - chair.priceCents)}
@@ -117,6 +133,57 @@ export default function ChairDetail() {
             </div>
           </div>
 
+          {/* Most chairs are sold as one fixed build and render nothing here —
+              an empty configurator would read as a missing feature. */}
+          {chair.options?.map((opt) => {
+            const selectedId = choices[opt.id] ?? opt.choices[0]!.id
+            return (
+              <fieldset key={opt.id} className="flex flex-col gap-2 border-0 p-0">
+                <legend className="eyebrow mb-2">{opt.label}</legend>
+                <div className="flex flex-wrap gap-2">
+                  {opt.choices.map((choice) => {
+                    const selected = choice.id === selectedId
+                    return (
+                      <label
+                        key={choice.id}
+                        className={cn(
+                          "flex cursor-pointer flex-col gap-0.5 rounded-md border px-3 py-2 text-sm transition-colors",
+                          "focus-within:ring-2 focus-within:ring-ring/50",
+                          selected
+                            ? "border-primary bg-primary/10"
+                            : "border-input bg-card hover:border-primary/40",
+                        )}
+                      >
+                        <input
+                          type="radio"
+                          className="sr-only"
+                          name={`${chair.slug}-${opt.id}`}
+                          value={choice.id}
+                          checked={selected}
+                          onChange={() =>
+                            setChoices((prev) => ({ ...prev, [opt.id]: choice.id }))
+                          }
+                        />
+                        <span className="flex items-center gap-2">
+                          <span className="font-medium">{choice.label}</span>
+                          {choice.priceDeltaCents !== 0 && (
+                            <span className="font-mono text-[11px] text-muted-foreground">
+                              {choice.priceDeltaCents > 0 ? "+" : "−"}
+                              {formatPrice(Math.abs(choice.priceDeltaCents))}
+                            </span>
+                          )}
+                        </span>
+                        {choice.note && (
+                          <span className="text-[11px] text-muted-foreground">{choice.note}</span>
+                        )}
+                      </label>
+                    )
+                  })}
+                </div>
+              </fieldset>
+            )
+          })}
+
           <div className="flex flex-wrap items-center gap-3">
             <div className="flex items-center rounded-md border border-input bg-card">
               <button
@@ -146,7 +213,7 @@ export default function ChairDetail() {
               type="button"
               disabled={!chair.inStock}
               onClick={() => {
-                add(chair.slug, colorway!.id, qty)
+                add(chair.slug, colorway!.id, qty, choices)
                 setJustAdded(true)
               }}
               className={cn(
@@ -163,7 +230,7 @@ export default function ChairDetail() {
                   <Check size={15} /> Added to cart
                 </>
               ) : (
-                `Add to cart — ${formatPrice(chair.priceCents * qty)}`
+                `Add to cart — ${formatPrice(unitCents * qty)}`
               )}
             </button>
           </div>
