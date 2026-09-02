@@ -24,7 +24,15 @@ export default function App() {
               mode="wait">: under React 19's StrictMode the exit never
               completes, so the outgoing page is held forever and every
               in-app navigation changes the URL while the view stays frozen.
-              An entry-only transition costs the exit fade and cannot wedge. */}
+              An entry-only transition costs the exit fade and cannot wedge.
+
+              This key is load-bearing beyond the animation. Because the slug
+              is part of the pathname, it is what remounts ChairDetail when you
+              move between two product pages — measured, not assumed. That
+              route keeps its own reset effect as a second line of defence, so
+              removing this key degrades rather than breaks it. If you do change
+              it, read that effect first: it is the only thing stopping a
+              reader inheriting the previous chair's colourway and build. */}
           <motion.div
             key={location.pathname}
             initial={{ opacity: 0, y: 8 }}
