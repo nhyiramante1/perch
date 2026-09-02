@@ -4,11 +4,13 @@ import { ArrowRight, Minus, Plus, ShoppingBag, Trash2 } from "lucide-react"
 import ChairArt from "@/components/ChairArt"
 import { chairBySlug } from "@/data/chairs"
 import { FREE_SHIPPING_THRESHOLD_CENTS, useCart } from "@/lib/cart"
+import { cartLineKey, unitPriceCents } from "@/lib/pricing"
 import { formatPrice } from "@/lib/utils"
 import type { CartLine } from "@/lib/types"
 
-/** One chair can sit in the cart twice in different colourways, so every row is
- *  keyed on (slug, colorwayId) — never on slug alone. */
+/** One chair can sit in the cart several times — different colourways, or the
+ *  same colourway built differently — so every row is keyed on the full line
+ *  identity via `cartLineKey`, never on slug alone. */
 const MAX_QTY = 99
 
 export default function Cart() {
@@ -28,7 +30,7 @@ export default function Cart() {
       <div className="mt-10 grid gap-8 lg:grid-cols-[1fr_20rem] lg:items-start">
         <ul className="flex flex-col gap-4">
           {cart.lines.map((line) => (
-            <CartRow key={`${line.slug}:${line.colorwayId}`} line={line} />
+            <CartRow key={cartLineKey(line)} line={line} />
           ))}
         </ul>
 
@@ -86,7 +88,8 @@ function CartRow({ line }: { line: CartLine }) {
   // A colourway can be retired from the catalogue while it sits in a saved cart.
   // Fall back to the first rather than rendering a blank swatch.
   const colorway = chair.colorways.find((c) => c.id === line.colorwayId) ?? chair.colorways[0]
-  const lineTotal = chair.priceCents * line.qty
+  const unitCents = unitPriceCents(chair, line.options)
+  const lineTotal = unitCents * line.qty
 
   return (
     <li className="surface flex gap-4 p-4">
@@ -120,7 +123,7 @@ function CartRow({ line }: { line: CartLine }) {
 
           <button
             type="button"
-            onClick={() => remove(line.slug, line.colorwayId)}
+            onClick={() => remove(line)}
             aria-label={`Remove ${chair.name} from cart`}
             className="rounded-md p-1.5 text-muted-foreground transition hover:bg-secondary hover:text-foreground"
           >
@@ -132,7 +135,7 @@ function CartRow({ line }: { line: CartLine }) {
           <div className="flex items-center gap-1 rounded-lg border border-border">
             <button
               type="button"
-              onClick={() => setQty(line.slug, line.colorwayId, line.qty - 1)}
+              onClick={() => setQty(line, line.qty - 1)}
               disabled={line.qty <= 1}
               aria-label={`Decrease quantity of ${chair.name}`}
               className="rounded-l-md px-2 py-1.5 transition hover:bg-secondary disabled:opacity-35 disabled:hover:bg-transparent"
@@ -144,7 +147,7 @@ function CartRow({ line }: { line: CartLine }) {
             </span>
             <button
               type="button"
-              onClick={() => setQty(line.slug, line.colorwayId, line.qty + 1)}
+              onClick={() => setQty(line, line.qty + 1)}
               disabled={line.qty >= MAX_QTY}
               aria-label={`Increase quantity of ${chair.name}`}
               className="rounded-r-md px-2 py-1.5 transition hover:bg-secondary disabled:opacity-35 disabled:hover:bg-transparent"
@@ -157,7 +160,7 @@ function CartRow({ line }: { line: CartLine }) {
             <p className="font-mono text-sm font-medium">{formatPrice(lineTotal)}</p>
             {line.qty > 1 ? (
               <p className="text-xs text-muted-foreground">
-                {formatPrice(chair.priceCents)} each
+                {formatPrice(unitCents)} each
               </p>
             ) : null}
           </div>
