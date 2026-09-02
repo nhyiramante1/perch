@@ -7,6 +7,9 @@
   --color-foreground: var(--foreground);
   --font-sans: var(--font-sans);
   --font-mono: var(--font-mono);
+  /* Headings share the sans stack today, but the cart/checkout pages ask for
+     `font-heading` by name — without this the utility resolves to nothing. */
+  --font-heading: var(--font-sans);
   --color-ring: var(--ring);
   --color-input: var(--input);
   --color-border: var(--border);

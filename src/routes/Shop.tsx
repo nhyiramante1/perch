@@ -1,6 +1,5 @@
 import { useMemo } from "react"
 import { useSearchParams } from "react-router-dom"
-import { AnimatePresence } from "framer-motion"
 import { Search, X } from "lucide-react"
 
 import ChairCard from "@/components/ChairCard"
@@ -160,11 +159,9 @@ export default function Shop() {
         </div>
       ) : (
         <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-          <AnimatePresence mode="popLayout">
-            {results.map((chair, i) => (
-              <ChairCard key={chair.slug} chair={chair} index={i} />
-            ))}
-          </AnimatePresence>
+          {results.map((chair, i) => (
+            <ChairCard key={chair.slug} chair={chair} index={i} />
+          ))}
         </div>
       )}
     </div>
