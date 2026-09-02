@@ -111,6 +111,15 @@ export interface Order {
     colorwayName: string
     qty: number
     unitPriceCents: number
+    /**
+     * The configuration that was bought, as display labels — what
+     * `describeChoices()` returns. Snapshotted like the name and price, so a
+     * later catalogue edit cannot rewrite what somebody ordered.
+     *
+     * Optional: orders placed before options existed, and chairs sold as one
+     * fixed build, have none.
+     */
+    optionLabels?: string[]
   }>
   subtotalCents: number
   shippingCents: number
