@@ -1,6 +1,10 @@
 import { Link } from "react-router-dom"
 
+import { usePageTitle } from "@/lib/usePageTitle"
+
 export default function NotFound() {
+  usePageTitle("Page not found")
+
   return (
     <div className="flex flex-col items-center gap-4 py-28 text-center">
       <p className="eyebrow">404</p>

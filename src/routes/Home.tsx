@@ -6,12 +6,14 @@ import ChairArt from "@/components/ChairArt"
 import ChairCard from "@/components/ChairCard"
 import { CHAIRS } from "@/data/chairs"
 import { CATEGORIES, CATEGORY_LABEL } from "@/lib/types"
+import { usePageTitle } from "@/lib/usePageTitle"
 import { formatPrice } from "@/lib/utils"
 
 const HERO_CHAIR = CHAIRS.find((c) => c.slug === "commons-lounger")!
 const FEATURED = ["the-all-nighter", "beanbag-theology", "quad-hammock", "loft-stool"]
 
 export default function Home() {
+  usePageTitle()
   const featured = FEATURED.map((s) => CHAIRS.find((c) => c.slug === s)!).filter(Boolean)
   const cheapest = Math.min(...CHAIRS.map((c) => c.priceCents))
 

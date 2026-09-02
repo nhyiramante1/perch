@@ -90,6 +90,14 @@
     scroll-behavior: smooth;
   }
 
+  /* One keyboard focus ring for the whole app. `:where()` holds specificity at
+     zero, so any component can still override it without an `!important`.
+     Declared once here rather than repeated on every interactive element,
+     which is how half of them end up missing it. */
+  :where(a, button, input, select, textarea, summary, [tabindex]):focus-visible {
+    @apply outline-2 outline-offset-2 outline-ring;
+  }
+
   body {
     @apply bg-background text-foreground;
     background-image:

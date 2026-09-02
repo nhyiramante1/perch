@@ -5,6 +5,7 @@ import { Search, X } from "lucide-react"
 import ChairCard from "@/components/ChairCard"
 import { CHAIRS } from "@/data/chairs"
 import { CATEGORIES, CATEGORY_LABEL, type Category, type Chair } from "@/lib/types"
+import { usePageTitle } from "@/lib/usePageTitle"
 import { cn } from "@/lib/utils"
 
 const SORTS = {
@@ -79,6 +80,8 @@ export default function Shop() {
   }, [category, q, sort])
 
   const filtered = Boolean(category) || q.trim() !== ""
+
+  usePageTitle(category ? `${CATEGORY_LABEL[category]} chairs` : "Every chair")
 
   return (
     <div className="flex flex-col gap-6">

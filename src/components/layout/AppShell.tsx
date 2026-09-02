@@ -15,10 +15,25 @@ export default function AppShell({ children }: { children: ReactNode }) {
 
   return (
     <div className="flex min-h-dvh flex-col">
+      {/* Visible only once focused. Without it, a keyboard user tabs through
+          the whole nav on every page before reaching the products. */}
+      <a
+        href="#main"
+        className="sr-only rounded-md bg-primary px-4 py-2 text-sm font-medium text-primary-foreground focus:not-sr-only focus:absolute focus:left-4 focus:top-4 focus:z-50"
+      >
+        Skip to content
+      </a>
+
       <Navbar />
-      <main className="mx-auto w-full max-w-6xl flex-1 px-5 pb-24 pt-8 sm:px-8">
+
+      <main
+        id="main"
+        tabIndex={-1}
+        className="mx-auto w-full max-w-6xl flex-1 px-5 pb-24 pt-8 outline-none sm:px-8"
+      >
         {children}
       </main>
+
       <Footer />
     </div>
   )

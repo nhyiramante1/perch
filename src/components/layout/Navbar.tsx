@@ -32,14 +32,17 @@ export default function Navbar() {
           <span className="text-base font-semibold tracking-tight">Perch</span>
         </Link>
 
-        <div className="ml-4 hidden items-center gap-1 sm:flex">
+        {/* Visible at every width. Hiding these below `sm` left a phone with no
+            route to a category at all — the burger menu that would have
+            replaced them is not worth the code for three links. */}
+        <div className="ml-1 flex items-center gap-0.5 sm:ml-4 sm:gap-1">
           {LINKS.map((l) => (
             <Link
               key={l.label}
               to={l.to}
               aria-current={isActive(l) ? "page" : undefined}
               className={cn(
-                "rounded-md px-3 py-1.5 text-sm transition-colors",
+                "rounded-md px-2 py-1.5 text-sm transition-colors sm:px-3",
                 isActive(l)
                   ? "bg-secondary text-secondary-foreground"
                   : "text-muted-foreground hover:text-foreground",
