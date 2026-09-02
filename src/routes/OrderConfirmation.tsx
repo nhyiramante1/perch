@@ -38,8 +38,11 @@ export default function OrderConfirmation() {
         </div>
 
         <ul className="divide-y divide-border">
-          {order.lines.map((line) => (
-            <OrderRow key={`${line.slug}:${line.colorwayName}`} line={line} />
+          {order.lines.map((line, i) => (
+            // The build is part of what makes a line distinct, and two lines can
+            // now differ by nothing else — so index keys it rather than a
+            // slug/colourway pair that is no longer unique.
+            <OrderRow key={`${line.slug}:${line.colorwayName}:${i}`} line={line} />
           ))}
         </ul>
 
@@ -92,6 +95,12 @@ function OrderRow({ line }: { line: Order["lines"][number] }) {
           {line.colorwayName}
           {line.qty > 1 ? ` · ${line.qty} × ${formatPrice(line.unitPriceCents)}` : null}
         </p>
+        {/* Read from the order's own snapshot, not recomputed from the catalogue. */}
+        {line.optionLabels?.length ? (
+          <p className="mt-0.5 text-xs text-muted-foreground">
+            {line.optionLabels.join(" · ")}
+          </p>
+        ) : null}
       </div>
 
       <p className="font-mono text-sm">{formatPrice(line.unitPriceCents * line.qty)}</p>

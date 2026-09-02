@@ -1,4 +1,5 @@
 import { chairBySlug } from "@/data/chairs"
+import { describeChoices, unitPriceCents } from "@/lib/pricing"
 import type { CartLine, Order } from "@/lib/types"
 
 const KEY = "perch-orders"
@@ -97,13 +98,20 @@ export function createOrder(input: CreateOrderInput): Order {
     if (!chair) return []
     const colorway =
       chair.colorways.find((c) => c.id === line.colorwayId) ?? chair.colorways[0]
+    // The chosen build is snapshotted for the same reason the name and price
+    // are: the customer approved this configuration at this price, and neither
+    // a catalogue edit nor a retired option may rewrite it afterwards.
+    const optionLabels = describeChoices(chair, line.options)
     return [
       {
         slug: chair.slug,
         name: chair.name,
         colorwayName: colorway?.name ?? "Standard",
         qty: line.qty,
-        unitPriceCents: chair.priceCents,
+        // Same function the cart totalled with, so the confirmation cannot
+        // disagree with the basket the customer approved.
+        unitPriceCents: unitPriceCents(chair, line.options),
+        ...(optionLabels.length > 0 ? { optionLabels } : {}),
       },
     ]
   })

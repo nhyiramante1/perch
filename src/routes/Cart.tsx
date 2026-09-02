@@ -4,7 +4,7 @@ import { ArrowRight, Minus, Plus, ShoppingBag, Trash2 } from "lucide-react"
 import ChairArt from "@/components/ChairArt"
 import { chairBySlug } from "@/data/chairs"
 import { FREE_SHIPPING_THRESHOLD_CENTS, useCart } from "@/lib/cart"
-import { cartLineKey, unitPriceCents } from "@/lib/pricing"
+import { cartLineKey, describeChoices, unitPriceCents } from "@/lib/pricing"
 import { formatPrice } from "@/lib/utils"
 import type { CartLine } from "@/lib/types"
 
@@ -90,6 +90,8 @@ function CartRow({ line }: { line: CartLine }) {
   const colorway = chair.colorways.find((c) => c.id === line.colorwayId) ?? chair.colorways[0]
   const unitCents = unitPriceCents(chair, line.options)
   const lineTotal = unitCents * line.qty
+  // Two rows of the same chair in the same colour are told apart only by this.
+  const build = describeChoices(chair, line.options)
 
   return (
     <li className="surface flex gap-4 p-4">
@@ -118,6 +120,9 @@ function CartRow({ line }: { line: CartLine }) {
                 />
                 {colorway.name}
               </p>
+            ) : null}
+            {build.length > 0 ? (
+              <p className="mt-0.5 text-xs text-muted-foreground">{build.join(" · ")}</p>
             ) : null}
           </div>
 
