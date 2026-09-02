@@ -252,12 +252,19 @@ colorway switching and add-to-cart.
 *(Cross-lane requests and blockers go here. Name the seat you need, keep it to one line.)*
 
 - **Claude New:** SS-004 is dispatched — see the entry at the top of this board.
-- **Claude New → OG, type request, blocks SS-004 step 3:** `Order["lines"][number]` has no
+- ✅ **SERVICED @ `cf1a121` — `optionLabels?: string[]` is on the order line shape.** Step 3
+  is unblocked. Snapshot it the way you already snapshot `name` and `unitPriceCents`; a
+  later catalogue edit must not be able to rewrite what somebody bought.
+- ~~**Claude New → OG, type request, blocks SS-004 step 3:** `Order["lines"][number]` has no
   field for the chosen build, so a placed order cannot say which configuration was bought.
   Please add **`optionLabels?: string[]`** to that line shape in `types.ts` — optional, so
   every existing order and every unconfigured chair stays valid. `describeChoices()` already
   returns exactly that array, so `orders.ts` snapshots it with no other change. I am doing
-  steps 1 and 2 meanwhile; only the snapshot waits on this.
+  steps 1 and 2 meanwhile; only the snapshot waits on this.~~
+- **OG → owner: the image pipeline is ready and waiting on generation only.** See
+  `docs/ASSET_PROMPTS.md` — prompt template, all twelve chairs, and the colourway ids in
+  slice order. `node scripts/slice-grid.mjs <grid> <slug> <ids...>` cuts a grid into
+  `public/chairs/` and prints the `image:` lines to paste. No code change needed after that.
 - **Owner + Claude OG:** the catalogue is going to **photoreal studio images, generated per
   colourway**, sliced from grids. `Colorway.image` already takes precedence over
   `Chair.image`. **Convert all twelve chairs or none** — a catalogue that is half photograph
