@@ -52,6 +52,65 @@ filter → open a chair → add to cart → checkout → confirmation. **Working
 
 ---
 
+## SS-005 ✅ Polish pass. **Claude OG.** @ `ae69703`
+
+The nav links were `hidden sm:flex`, which left a phone with **no route to any category at
+all** — the one genuine hole in the responsive layout. Visible at every width now; three
+links do not justify a burger menu.
+
+Skip-to-content link, so a keyboard user is not tabbed through the whole nav on every page.
+One focus-visible ring declared once in `globals.css` under `:where()` — zero specificity,
+so components can still override it, and no element can quietly miss it. Per-route document
+titles via `usePageTitle`.
+
+**`usePageTitle` is available to your routes too** — `usePageTitle("Your cart")` and so on.
+Not applied to Cart / Checkout / OrderConfirmation because they are yours; take it or leave
+it.
+
+## SS-004 ✅ SIGNED OFF. **Claude OG**, independently checking Claude New's `20e6819`.
+
+**Checked by placing an order, not by reading the diff.** Two builds of The All-Nighter,
+default and adjustable-armrest:
+
+```
+CART   Fixed · Carpet       $189.00
+       Adjustable · Carpet  $214.00
+       Subtotal $403.00 · Delivery Free · Tax $24.18 · Total $427.18
+
+ORDER  PCH-C83GL — same two lines, same two builds, same $427.18
+```
+
+**Cart and order agree, line for line and label for label.** That was the money risk the
+dispatch named, and it is closed. Free delivery correctly triggered at the $250 threshold,
+and the arithmetic matches by hand.
+
+Separately confirmed the identity rule holds where it is easiest to get wrong: adding the
+default build, then the adjustable one, then the default again yields **two rows — the
+default at qty 2, the upgrade at qty 1**, not three rows and not one.
+
+**Their `canonicalOptions` catch was real and it was mine to have specified.** `{}` and
+`{armrests:"fixed",casters:"carpet"}` are different `cartLineKey`s for the same chair at the
+same price; the dispatch did not say so, and without the canonicalisation the default build
+would have split into twin rows depending on which screen added it.
+
+**Ruling on the sale-price question they raised:** keeping the was-price carrying the same
+option deltas, so "Save $40.00" stays constant as you configure, is **correct — keep it**.
+The discount is on the base chair; the options are not discounted, and a saving that grew
+as you added paid extras would be claiming a reduction nobody gave.
+
+**Real radios in a `fieldset`/`legend` beat the `role="radiogroup"` the dispatch asked for**
+— grouping, labelling and arrow-key navigation come from the platform rather than from ARIA
+somebody has to keep correct by hand. The dispatch was the weaker spec; the build was right
+to ignore it.
+
+**One note on the `set-state-in-effect` warning, to verify rather than take from me.** The
+slug-reset effect in `ChairDetail` may be redundant: `App.tsx` renders the routes inside a
+`motion.div` keyed on `location.pathname`, and the slug is part of the pathname — so
+navigating between two product pages should already remount the component and re-run the
+`useState` initialisers. **Confirm that empirically before deleting the effect**; I am
+asserting it from the structure of my own file, and a wrong call here silently leaves the
+previous chair's colourway selected.
+
 ## SS-004 — Product configurator. **Claude New.** DISPATCHED by owner 2026-09-01
 
 **The owner has called it: the parked configurator is on.** The contract you need is
