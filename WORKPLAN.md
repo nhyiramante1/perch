@@ -51,6 +51,72 @@ filter → open a chair → add to cart → checkout → confirmation. **Working
 
 ---
 
+## SS-003 ✅ NAVIGATION WAS BROKEN SITE-WIDE — fixed. **Claude OG.** 2026-09-01 @ `3da9c43`
+
+**Every in-app link changed the URL and left the view frozen on the previous page.** Not a
+cart bug, not a checkout bug — `AnimatePresence mode="wait"` in `App.tsx` never completed
+its exit under React 19's StrictMode, so the outgoing route was held mounted forever.
+
+**This is the failure mode worth remembering: hard reloads worked perfectly.** Browsing the
+site by typing URLs looked flawless, which is exactly why it survived two seats and four
+commits unnoticed. It only surfaced when I clicked cart → checkout like a user would.
+
+Route transitions are now entry-only on a keyed `motion.div` — same fade in, no exit
+animation, and nothing that can wedge. Same pattern removed from the `Shop` grid, whose
+cards had no exit animation to lose anyway.
+
+Two smaller fixes in the same push: `--font-heading` is now defined (the cart and checkout
+pages ask for it by name, and it was silently resolving to nothing), and a stray
+`pnpm-lock.yaml` / `pnpm-workspace.yaml` pair is out of what is an npm project, plus
+`.gitignore`d so they cannot come back.
+
+**Navbar active state** followed in a second push: `NavLink` matches on pathname only, so
+Shop / Desk / Lounge all highlighted simultaneously on `/shop`. Active state now reads the
+`category` query param.
+
+## SS-002 ✅ VERIFIED END TO END. **Claude OG**, checking Claude New's work.
+
+Walked it as a user, in a browser, not by reading it. **Both hazards the dispatch called
+out are handled, and handled for the stated reason:**
+
+- Confirmation reads from the order store, never cart state. Placed `PCH-YZ7PT`, cart went
+  to 0, confirmation rendered in full.
+- Unknown id renders its own state rather than blanking, and a **refresh of a real order id
+  still resolves** — checked both.
+
+**Validation genuinely blocks.** An invalid submit produced four inline errors, set
+`aria-invalid` on all four fields, and did not navigate. `role="alert"` and
+`aria-describedby` are wired, which is more than the brief asked for.
+
+**`orders.ts` is better than it needed to be**, and two decisions are worth keeping:
+line names, colourway names and unit prices are **snapshotted at placement**, so a later
+catalogue edit cannot rewrite somebody's placed order; and an in-memory mirror sits in front
+of `localStorage`, so an order still reads back on the next screen when a private-mode
+browser refuses the write. The id alphabet drops O/0, I/1 and S/5 because these get read
+aloud.
+
+**No card fields anywhere** — grepped for it. Checkout says plainly that it is simulated.
+
+Totals verified against the cart: $189.00 + $19.00 delivery + $11.34 tax = **$219.34**.
+
+Nothing here needed changing.
+
+## SS-001 ✅ Home, Shop, ChairDetail landed. **Claude OG.** @ `b816ad5`
+
+Filter state lives in the URL, so a filtered view is shareable and the navbar links
+straight into a category. **Search requires every term rather than any** — "cheap folding"
+narrows instead of widening. Verified: "loft" returns Loft Stool by name and Floor Rocker
+because its description says lofted bed.
+
+`featured` sorts in-stock first, then by review count — a featured rail should never lead
+with something you cannot buy.
+
+**Verified in both themes and at 375px.** All eight drawn shapes read as chairs; the SVG
+strokes use `currentColor`, so the line art inverts correctly in dark mode rather than
+going muddy.
+
+---
+
 ## SS-000 — Foundation landed. **Claude OG.** 2026-09-01
 
 Vite 8 + React 19 + TS 6 + Tailwind v4 (`@tailwindcss/vite`, tokens in `globals.css`, no
@@ -134,4 +200,8 @@ colorway switching and add-to-cart.
 
 *(Cross-lane requests and blockers go here. Name the seat you need, keep it to one line.)*
 
-- Nothing open.
+- **Claude New:** the site is feature-complete and verified — do not start new work without
+  a board entry dispatching it. The product configurator is **parked by owner decision**,
+  not dropped; it becomes SS-004 only if the owner calls for it.
+- **Both seats:** `AnimatePresence` is banned in this codebase — see SS-003. If you want an
+  exit animation, raise it here first.

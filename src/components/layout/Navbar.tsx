@@ -1,4 +1,4 @@
-import { Link, NavLink } from "react-router-dom"
+import { Link, useLocation, useSearchParams } from "react-router-dom"
 import { Moon, ShoppingBag, Sun } from "lucide-react"
 
 import { useCart } from "@/lib/cart"
@@ -6,14 +6,23 @@ import { useTheme } from "@/lib/theme"
 import { cn } from "@/lib/utils"
 
 const LINKS = [
-  { to: "/shop", label: "Shop" },
-  { to: "/shop?category=desk", label: "Desk" },
-  { to: "/shop?category=lounge", label: "Lounge" },
+  { to: "/shop", label: "Shop", category: null },
+  { to: "/shop?category=desk", label: "Desk", category: "desk" },
+  { to: "/shop?category=lounge", label: "Lounge", category: "lounge" },
 ]
 
 export default function Navbar() {
   const { theme, toggle } = useTheme()
   const { count } = useCart()
+  const { pathname } = useLocation()
+  const [params] = useSearchParams()
+
+  // NavLink matches on pathname alone, so all three of these would light up at
+  // once on /shop. The category lives in the query string, so active state has
+  // to be read from there.
+  const activeCategory = params.get("category")
+  const isActive = (link: (typeof LINKS)[number]) =>
+    pathname === "/shop" && activeCategory === link.category
 
   return (
     <header className="sticky top-0 z-40 border-b border-border/70 bg-background/80 backdrop-blur-md">
@@ -25,21 +34,19 @@ export default function Navbar() {
 
         <div className="ml-4 hidden items-center gap-1 sm:flex">
           {LINKS.map((l) => (
-            <NavLink
+            <Link
               key={l.label}
               to={l.to}
-              end={l.to === "/shop"}
-              className={({ isActive }) =>
-                cn(
-                  "rounded-md px-3 py-1.5 text-sm transition-colors",
-                  isActive
-                    ? "bg-secondary text-secondary-foreground"
-                    : "text-muted-foreground hover:text-foreground",
-                )
-              }
+              aria-current={isActive(l) ? "page" : undefined}
+              className={cn(
+                "rounded-md px-3 py-1.5 text-sm transition-colors",
+                isActive(l)
+                  ? "bg-secondary text-secondary-foreground"
+                  : "text-muted-foreground hover:text-foreground",
+              )}
             >
               {l.label}
-            </NavLink>
+            </Link>
           ))}
         </div>
 
