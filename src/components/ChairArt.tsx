@@ -1,31 +1,43 @@
 import { useId } from "react"
 
 import { cn } from "@/lib/utils"
-import type { Chair, ChairShape } from "@/lib/types"
+import type { Chair, ChairShape, Colorway } from "@/lib/types"
 
 interface ChairArtProps {
   chair: Chair
   /** Hex of the selected colorway. Falls back to the chair's first colorway. */
   color?: string
+  /**
+   * The selected colorway itself. Preferred over `color` where the caller has
+   * it, because only the full object can carry a per-colorway photo.
+   */
+  colorway?: Colorway
   className?: string
 }
 
 /**
  * Renders a chair.
  *
- * Every chair is drawn in code from its `shape`, tinted by the selected
- * colorway — so a new product needs no asset. If a chair carries an `image`,
- * that photo wins and the SVG is skipped, which is the seam for swapping in
- * generated imagery later without touching this component.
+ * Resolution order is deliberate and each step is independently adoptable:
+ *
+ *   1. the selected colorway's own photo, if it has one
+ *   2. the chair's single photo, if it has one
+ *   3. the code-drawn SVG, tinted by the selected colorway
+ *
+ * So the catalogue can be all drawn, all photographed, or any mixture, and a
+ * chair photographed in only some of its colours falls back to the drawing for
+ * the rest rather than showing the wrong colour. Adding imagery stays a data
+ * edit — never a second render path bolted on at a call site.
  */
-export default function ChairArt({ chair, color, className }: ChairArtProps) {
-  const tint = color ?? chair.colorways[0]?.hex ?? "#6b7280"
+export default function ChairArt({ chair, color, colorway, className }: ChairArtProps) {
+  const tint = colorway?.hex ?? color ?? chair.colorways[0]?.hex ?? "#6b7280"
+  const photo = colorway?.image ?? chair.image
 
-  if (chair.image) {
+  if (photo) {
     return (
       <img
-        src={chair.image}
-        alt={chair.name}
+        src={photo}
+        alt={colorway ? `${chair.name} in ${colorway.name}` : chair.name}
         loading="lazy"
         className={cn("h-full w-full object-cover", className)}
       />

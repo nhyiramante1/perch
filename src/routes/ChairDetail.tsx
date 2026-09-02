@@ -59,7 +59,7 @@ export default function ChairDetail() {
           transition={{ duration: 0.28 }}
           className="surface aspect-square overflow-hidden bg-secondary/40 text-foreground/70"
         >
-          <ChairArt chair={chair} color={colorway?.hex} className="p-10" />
+          <ChairArt chair={chair} colorway={colorway} className="p-10" />
         </motion.div>
 
         <div className="flex flex-col gap-6">

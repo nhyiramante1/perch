@@ -31,6 +31,13 @@ export interface Colorway {
   name: string
   /** Any CSS colour. Drives the code-drawn SVG's upholstery. */
   hex: string
+  /**
+   * Optional photo of *this* colourway. Takes precedence over `Chair.image`,
+   * so a photographed catalogue keeps the colourway picker meaningful — the
+   * preview changes when you switch colour, exactly as the drawn version does.
+   * Without it a photographed chair shows one fixed image for every colour.
+   */
+  image?: string
 }
 
 export interface Chair {
@@ -53,6 +60,8 @@ export interface Chair {
   rating: number
   reviewCount: number
   inStock: boolean
+  /** Configurable choices. A chair without these is sold as one fixed build. */
+  options?: ChairOption[]
   /**
    * Optional photo. When present `ChairArt` renders this instead of the
    * code-drawn SVG, so swapping in generated imagery later is a data change
@@ -61,11 +70,36 @@ export interface Chair {
   image?: string
 }
 
-/** One line in the cart. Quantity lives here; the chair itself is looked up by slug. */
+/** A configurable choice on a chair, e.g. "Armrests" → "None" / "Fixed" / "Adjustable". */
+export interface OptionChoice {
+  id: string
+  label: string
+  /** Added to the chair's base price. May be 0, and may be negative. */
+  priceDeltaCents: number
+  /** Shown under the choice when it needs a word of explanation. */
+  note?: string
+}
+
+export interface ChairOption {
+  id: string
+  label: string
+  choices: OptionChoice[]
+}
+
+/**
+ * One line in the cart. Quantity lives here; the chair is looked up by slug.
+ *
+ * Identity is `(slug, colorwayId, options)` — the same chair configured two
+ * ways is two lines, because they are two different products at two different
+ * prices. Use `cartLineKey()` from `lib/pricing` rather than comparing fields
+ * by hand.
+ */
 export interface CartLine {
   slug: string
   colorwayId: string
   qty: number
+  /** optionId → choiceId. Absent or empty means the chair's default build. */
+  options?: Record<string, string>
 }
 
 export interface Order {

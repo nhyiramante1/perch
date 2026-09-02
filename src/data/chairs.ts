@@ -34,6 +34,35 @@ export const CHAIRS: Chair[] = [
     rating: 4.8,
     reviewCount: 214,
     inStock: true,
+    options: [
+      {
+        id: "armrests",
+        label: "Armrests",
+        choices: [
+          { id: "fixed", label: "Fixed", priceDeltaCents: 0 },
+          {
+            id: "none",
+            label: "None",
+            priceDeltaCents: -1500,
+            note: "Tucks fully under a shallow desk",
+          },
+          { id: "adjustable", label: "Adjustable", priceDeltaCents: 2500 },
+        ],
+      },
+      {
+        id: "casters",
+        label: "Casters",
+        choices: [
+          { id: "carpet", label: "Carpet", priceDeltaCents: 0 },
+          {
+            id: "hard",
+            label: "Hard floor",
+            priceDeltaCents: 1200,
+            note: "Softer wheel for tile and laminate",
+          },
+        ],
+      },
+    ],
   },
   {
     slug: "hekman-hush",
@@ -84,6 +113,30 @@ export const CHAIRS: Chair[] = [
     rating: 4.9,
     reviewCount: 331,
     inStock: true,
+    options: [
+      {
+        id: "fabric",
+        label: "Fabric",
+        choices: [
+          { id: "canvas", label: "Canvas", priceDeltaCents: 0 },
+          { id: "corduroy", label: "Corduroy", priceDeltaCents: 2500 },
+          {
+            id: "boucle",
+            label: "Bouclé",
+            priceDeltaCents: 4000,
+            note: "Warmer, and hides a semester better",
+          },
+        ],
+      },
+      {
+        id: "legs",
+        label: "Legs",
+        choices: [
+          { id: "maple", label: "Solid maple", priceDeltaCents: 0 },
+          { id: "steel", label: "Black steel", priceDeltaCents: 1500 },
+        ],
+      },
+    ],
   },
   {
     slug: "knollcrest-nook",
