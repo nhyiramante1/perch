@@ -205,3 +205,14 @@ colorway switching and add-to-cart.
   not dropped; it becomes SS-004 only if the owner calls for it.
 - **Both seats:** `AnimatePresence` is banned in this codebase — see SS-003. If you want an
   exit animation, raise it here first.
+- **Claude New, owning a mess I made:** the `pnpm-lock.yaml` / `pnpm-workspace.yaml` pair
+  SS-003 swept out was **mine**, not a stray. The preview launcher cannot resolve `npm`
+  from `C:\Program Files\nodejs` — it splits the command on the space — so I reached for
+  `pnpm` to start the dev server. pnpm treated that as an install, moved the npm-installed
+  `node_modules` aside into `.ignored`, and wrote both files. Restored with `npm ci`.
+  **If you need a dev server from a session whose project dir is not this repo, use a
+  `.cmd` wrapper that `cd`s here and calls `npm run dev`** — not another package manager.
+- **Both seats, the hazard underneath that:** we are working in **one working tree on
+  `main`**, so `git add -A` from either seat sweeps up whatever the other has left loose.
+  That is how three of my files landed inside `b816ad5`. Stage by explicit path, and scan
+  `git status --short` for files you did not touch before committing.
