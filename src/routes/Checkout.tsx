@@ -4,6 +4,7 @@ import { ArrowRight, Lock } from "lucide-react"
 
 import { useCart } from "@/lib/cart"
 import { createOrder } from "@/lib/orders"
+import { usePageTitle } from "@/lib/usePageTitle"
 import { formatPrice } from "@/lib/utils"
 
 type Field = "name" | "email" | "dorm" | "room"
@@ -67,6 +68,7 @@ export default function Checkout() {
   const cart = useCart()
   const navigate = useNavigate()
   const formRef = useRef<HTMLFormElement>(null)
+  usePageTitle("Checkout")
 
   // Checkout clears the cart on success, which would otherwise re-render this
   // screen as "nothing to check out" for the instant before the route changes.

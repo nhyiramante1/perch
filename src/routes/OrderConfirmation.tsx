@@ -4,12 +4,14 @@ import { ArrowRight, Check, PackageX } from "lucide-react"
 import ChairArt from "@/components/ChairArt"
 import { chairBySlug } from "@/data/chairs"
 import { getOrder } from "@/lib/orders"
+import { usePageTitle } from "@/lib/usePageTitle"
 import { formatPrice } from "@/lib/utils"
 import type { Order } from "@/lib/types"
 
 export default function OrderConfirmation() {
   const { id } = useParams<{ id: string }>()
   const order = id ? getOrder(id) : null
+  usePageTitle(order ? `Order ${order.id}` : "Order not found")
 
   // Someone will refresh, bookmark, or paste a stale link. A blank page here is
   // the first thing a grader finds.

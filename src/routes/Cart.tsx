@@ -5,6 +5,7 @@ import ChairArt from "@/components/ChairArt"
 import { chairBySlug } from "@/data/chairs"
 import { FREE_SHIPPING_THRESHOLD_CENTS, useCart } from "@/lib/cart"
 import { cartLineKey, describeChoices, unitPriceCents } from "@/lib/pricing"
+import { usePageTitle } from "@/lib/usePageTitle"
 import { formatPrice } from "@/lib/utils"
 import type { CartLine } from "@/lib/types"
 
@@ -15,6 +16,7 @@ const MAX_QTY = 99
 
 export default function Cart() {
   const cart = useCart()
+  usePageTitle("Your cart")
 
   if (cart.lines.length === 0) return <EmptyCart />
 

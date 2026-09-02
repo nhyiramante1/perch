@@ -9,6 +9,7 @@ import { CHAIRS, chairBySlug } from "@/data/chairs"
 import { useCart } from "@/lib/cart"
 import { unitPriceCents } from "@/lib/pricing"
 import { CATEGORY_LABEL, type Chair } from "@/lib/types"
+import { usePageTitle } from "@/lib/usePageTitle"
 import { cn, formatPrice } from "@/lib/utils"
 import NotFound from "@/routes/NotFound"
 
@@ -43,6 +44,11 @@ export default function ChairDetail() {
     const t = setTimeout(() => setJustAdded(false), 1800)
     return () => clearTimeout(t)
   }, [justAdded])
+
+  // Named for both branches: NotFound renders its own title effect, and a
+  // child effect runs before its parent, so this one would otherwise win and
+  // overwrite it with the default.
+  usePageTitle(chair ? chair.name : "Page not found")
 
   if (!chair) return <NotFound />
 
