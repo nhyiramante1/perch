@@ -27,7 +27,8 @@ than resolving it silently.
 |---|---|
 | `src/routes/Home.tsx` | `src/routes/Cart.tsx` |
 | `src/routes/Shop.tsx` | `src/routes/Checkout.tsx` |
-| `src/routes/ChairDetail.tsx` | `src/routes/OrderConfirmation.tsx` |
+| ~~`src/routes/ChairDetail.tsx`~~ *(handed to Claude New at SS-004)* | `src/routes/OrderConfirmation.tsx` |
+| | `src/routes/ChairDetail.tsx` *(from SS-004)* |
 | `src/routes/NotFound.tsx` | `src/lib/cart.tsx` |
 | `src/components/ChairArt.tsx` | `src/lib/orders.ts` *(new — yours to create)* |
 | `src/components/ChairCard.tsx` | `src/components/cart/**` *(new — yours to create)* |
@@ -48,6 +49,56 @@ again. It is Claude New's file from now on.
 
 `npx tsc -b` exits 0 and `npm run dev` serves a site you can walk end to end: browse →
 filter → open a chair → add to cart → checkout → confirmation. **Working beats complete.**
+
+---
+
+## SS-004 — Product configurator. **Claude New.** DISPATCHED by owner 2026-09-01
+
+**The owner has called it: the parked configurator is on.** The contract you need is
+already landed — read `src/lib/pricing.ts` and the new types before you write anything.
+
+**Lane change, effective now: `src/routes/ChairDetail.tsx` is handed over to you.** Claude
+OG has stopped touching it. In exchange, OG keeps `chairs.ts`, `types.ts`, `pricing.ts`,
+`ChairArt.tsx` and `ChairCard.tsx` — post option-data requests under Open items.
+
+### What exists so you do not invent it
+
+- **`Chair.options?: ChairOption[]`** — each option has `id`, `label`, and `choices`; each
+  choice has `id`, `label`, `priceDeltaCents` (may be negative) and an optional `note`.
+  **The All-Nighter** (armrests, casters) and **Commons Lounger** (fabric, legs) carry real
+  data. Most chairs have no options — those render no configurator at all, not an empty one.
+- **`CartLine.options?: Record<string, string>`** — optionId → choiceId.
+- **`lib/pricing.ts`** — `unitPriceCents(chair, options)`, `resolveChoices`,
+  `describeChoices`, `cartLineKey(line)`, `isSameLine(a, b)`.
+
+### The rule that makes or breaks this
+
+**Line identity is now `(slug, colorwayId, options)`, not `(slug, colorwayId)`.** The same
+chair with adjustable armrests and without is **two lines at two different prices**.
+`src/lib/cart.tsx` currently matches on slug + colorwayId and will silently merge them,
+charging the base price for both. **Fix `cart.tsx` first, using `isSameLine`/`cartLineKey`
+— before you build any UI**, or you will build a configurator on top of a cart that throws
+its choices away.
+
+**Never total options by hand.** `unitPriceCents` is the only place a configured chair
+becomes a price. `cart.tsx` and `orders.ts` must both call it, or the confirmation will
+disagree with the basket the customer approved — and that is money.
+
+### Build order, each committed and pushed before the next
+
+1. **`cart.tsx`** — line identity and per-line pricing through `pricing.ts`. Existing carts
+   in `localStorage` have no `options` key; they must keep working, not throw.
+2. **`ChairDetail.tsx`** — render each option as a labelled choice group. The displayed
+   price and the add-to-cart button must update **live** as choices change, and the
+   selection must reset when the slug changes (that effect already exists — extend it).
+3. **`Cart.tsx` + `orders.ts` + `OrderConfirmation.tsx`** — show the chosen build on each
+   line (`describeChoices` gives you the labels) and snapshot it into the order the way you
+   already snapshot names and prices.
+
+**Accessibility:** these are choice groups, so use `role="radiogroup"` with proper labels,
+or real radio inputs. Do not build them as unlabelled buttons.
+
+**Stage by explicit path** — `git status --short` before every commit, per your own note.
 
 ---
 
@@ -200,9 +251,12 @@ colorway switching and add-to-cart.
 
 *(Cross-lane requests and blockers go here. Name the seat you need, keep it to one line.)*
 
-- **Claude New:** the site is feature-complete and verified — do not start new work without
-  a board entry dispatching it. The product configurator is **parked by owner decision**,
-  not dropped; it becomes SS-004 only if the owner calls for it.
+- **Claude New:** SS-004 is dispatched — see the entry at the top of this board.
+- **Owner + Claude OG:** the catalogue is going to **photoreal studio images, generated per
+  colourway**, sliced from grids. `Colorway.image` already takes precedence over
+  `Chair.image`. **Convert all twelve chairs or none** — a catalogue that is half photograph
+  and half drawing reads as unfinished. Within a single chair it is worse: never photograph
+  some of a chair's colourways and leave the rest drawn.
 - **Both seats:** `AnimatePresence` is banned in this codebase — see SS-003. If you want an
   exit animation, raise it here first.
 - **Claude New, owning a mess I made:** the `pnpm-lock.yaml` / `pnpm-workspace.yaml` pair
